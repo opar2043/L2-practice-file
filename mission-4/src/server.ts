@@ -2,6 +2,10 @@ import express, { Request, Response } from "express";
 import { Pool } from "pg";
 import dotenv from "dotenv";
 import path from "path";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { authRouter } from "./modules/auth/auth.route";
+import auth from "./middleware/auth";
 
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 
@@ -27,6 +31,7 @@ const initDb = async () => {
         id SERIAL PRIMARY KEY,
         name VARCHAR(100) NOT NULL,
         email VARCHAR(200) UNIQUE NOT NULL,
+        password TEXT NOT NULL,
         age INT,
         phone VARCHAR(15),
         adress TEXT
@@ -46,33 +51,37 @@ const initDb = async () => {
 
 initDb();
 
-// users route
-app.post("/users", async (req, res) => {
+// ************* users route ******************************
+app.post("/users", async (req: Request, res: Response) => {
   console.log(req.body);
-  const { name, email, age } = req.body;
+
+  const { name, email, password, age } = req.body;
 
   try {
-    const result = await pool.query(
-      `INSERT INTO users (name, email , age) VALUES ($1, $2 , $3) RETURNING *`,
-      [name, email, age]
-    );
+    // Convert password to string + hash it properly
+    const hashPass = await bcrypt.hash(String(password), 10);
 
-    console.log(result.rows);
+    const result = await pool.query(
+      `INSERT INTO users (name, email, password, age) VALUES ($1, $2, $3, $4) RETURNING *`,
+      [name, email, hashPass, age]
+    );
 
     res.status(200).json({
       success: true,
-      msg: "Data Inserted",
+      msg: "User created successfully",
       data: result.rows[0],
     });
   } catch (err: any) {
+    console.error(err);
     res.status(500).json({
       success: false,
-      msg: err.msg,
+      msg: err.message,
     });
   }
 });
 
-app.get("/users", async (req: Request, res: Response) => {
+
+app.get("/users",auth(), async (req: Request, res: Response) => {
   try {
     const result = await pool.query(`
       SELECT * FROM users
@@ -103,12 +112,12 @@ app.get("/users/:id", async (req: Request, res: Response) => {
         success: false,
         msg: "User not found",
       });
-    }else{
-          res.status(200).json({
-      success: true,
-      msg: "Users Fetched succesfully",
-      data: result.rows[0]
-  });
+    } else {
+      res.status(200).json({
+        success: true,
+        msg: "Users Fetched succesfully",
+        data: result.rows[0],
+      });
     }
   } catch (err: any) {
     res.status(500).json({
@@ -117,7 +126,6 @@ app.get("/users/:id", async (req: Request, res: Response) => {
     });
   }
 });
-
 
 app.delete("/users/:id", async (req: Request, res: Response) => {
   const id = req.params.id;
@@ -131,12 +139,12 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
         success: false,
         msg: "User not found",
       });
-    }else{
-          res.status(200).json({
-      success: true,
-      msg: "Deleted succesfully",
-      data: null
-  });
+    } else {
+      res.status(200).json({
+        success: true,
+        msg: "Deleted succesfully",
+        data: null,
+      });
     }
   } catch (err: any) {
     res.status(500).json({
@@ -147,7 +155,7 @@ app.delete("/users/:id", async (req: Request, res: Response) => {
 });
 
 app.put("/users/:id", async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id, 10); // convert to number
+  const id = parseInt(req.params.id!, 10); // convert to number
 
   const { name, email, age } = req.body;
 
@@ -193,8 +201,39 @@ app.put("/users/:id", async (req: Request, res: Response) => {
     });
   }
 });
+// ************ User route finished **************************
+//  ********** authentication route ******************
 
+// *********** todos route *****************************
+app.use("/auth", authRouter);
+app.post("/todos", async (req: Request, res: Response) => {
+  const { user_id, title, description } = req.body;
 
+  try {
+    const result = await pool.query(
+      `
+        INSERT INTO todos (user_id, title, description)
+        VALUES ($1, $2, $3)
+        RETURNING *;
+      `,
+      [user_id, title, description]
+    );
+
+    res.status(201).json({
+      success: true,
+      msg: "Todo created successfully",
+      data: result.rows[0],
+    });
+  } catch (err: any) {
+    console.error(err);
+    res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+});
+
+// *********** todos route finished  *****************************
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
