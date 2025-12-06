@@ -13,6 +13,29 @@ const createUserDb = async (payload: Record<string, any>) => {
 }
 
 
+const getUserDb = async () => {
+  const result = await pool.query(`
+    SELECT id, name, email 
+    FROM users
+    ORDER BY id ASC
+  `);
+
+  return result;
+};
+
+const getsingleUsersDb = async (email : String) => {
+  const result = await pool.query(`
+    SELECT id, name, email 
+    FROM users WHERE email = $1
+    ORDER BY id ASC
+  `, [email]);
+
+  return result;
+};
+
+
 export  const userServices = {
-    createUserDb
+    createUserDb,
+    getUserDb,
+    getsingleUsersDb
 }

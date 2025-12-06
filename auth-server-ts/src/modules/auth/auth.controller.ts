@@ -4,7 +4,7 @@ const loginUser = async(req: Request, res: Response)=>{
      try {
         const email = req.body.email;
         const password = req.body.password;
-       const result = await authServices.loginUserDb(email, password);
+        const result = await authServices.loginUserDb(email, password);
        res.status(200).json({
          message: "User created successfully",
          data: result,

@@ -7,7 +7,9 @@ const app = express();
 const PORT = 5000;
 app.use(express.json());
 
-
+// * working proccess flow:
+// server.ts -> userRouter.ts -> userController.ts -> userService.ts -> 
+//  server.ts -> authRouter.ts -> authController.ts -> authService.ts -> auth.ts
 initDb();
 
 app.listen(PORT, () => {
