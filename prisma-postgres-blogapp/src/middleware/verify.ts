@@ -1,12 +1,6 @@
-//? router => controller => service
 
-import express, { NextFunction, Request, Response, Router } from "express";
-import { postControler } from "./post.controller";
-import { auth as betterauth } from "../../lib/auth";
-
-
-const router = express.Router();
-
+import { NextFunction, Request, Response } from "express";
+import  {auth as betterauth}  from "../middleware/verify";
 
 export enum UserRole {
      USER = "USER",
@@ -27,7 +21,7 @@ declare global {
 }
 
 
-const auth = (...role: UserRole[]) => {
+export const auth = (...role: UserRole[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     const session = await betterauth.api.getSession({
       headers: req.headers as any,
@@ -60,7 +54,3 @@ const auth = (...role: UserRole[]) => {
     next()
   };
 };
-
-router.post("/", auth(), postControler.createPost);
-
-export const postRouter: Router = router;
