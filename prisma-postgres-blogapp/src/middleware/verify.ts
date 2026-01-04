@@ -49,8 +49,6 @@ export const auth = (...role: UserRole[]) => {
        name : session.user.name,
        role : session.user.role
     }
-
-
     next()
   };
 };
