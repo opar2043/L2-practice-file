@@ -11,6 +11,7 @@ const app : Application = express();
 
 app.use(express.json())
 
+// http://localhost:3000/api/auth/sign-up/email
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use('/posts' , postRouter)
 
