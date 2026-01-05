@@ -56,14 +56,39 @@ const getAllPost = async (payload: { search: string | undefined ,
       //   },
       ],
     },
-    orderBy: {
-      sortby: SortOrder
-    }
+    // orderBy: 
+    //   payload.sortBy && payload.sortOrder ? {
+    //     [payload.sortBy]: payload.sortOrder as SortOrder
+    //   } : {
+    //     createdAt: "desc"
+    //   }
+    
   });
   return posts;
 };
 
+const getPostbyId = async (id: string) => {
+  return prisma.$transaction(async (tx) => {
+    // Increment view count
+    await tx.post.update({
+      where: { id },
+      data: {
+        views: {
+          increment: 1,
+        },
+      },
+    });
+
+    // Fetch updated post
+    return tx.post.findUnique({
+      where: { id },
+    });
+  });
+};
+
+
 export const postService = {
   createPost,
   getAllPost,
+  getPostbyId
 };

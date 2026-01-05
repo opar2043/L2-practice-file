@@ -9,4 +9,5 @@ router.get("/", postControler.getAllPost);
 // create post (NO AUTH)
 router.post("/", postControler.createPost);
 
+router.get ("/:id", postControler.getPostbyId);
 export const postRouter = router;
