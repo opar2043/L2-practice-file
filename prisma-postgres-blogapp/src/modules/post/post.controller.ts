@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { postService } from "./post.service";
-import { any, string } from "better-auth/*";
 import paginationsorting from "../../helper/paginationsorting";
+import { string } from "better-auth/*";
 
 const createPost = async (req: Request, res: Response) => {
   try {
-    const { authorId, title, content } = req.body;
+    const { authorId, title , content } = req.body;
 
     if (!authorId) {
       return res.status(400).json({
@@ -14,7 +14,7 @@ const createPost = async (req: Request, res: Response) => {
       });
     }
 
-    const result = await postService.createPost({ title, content }, authorId);
+    const result = await postService.createPost({ title , content }, authorId);
 
     res.status(201).json({
       success: true,
@@ -68,7 +68,7 @@ const getAllPost = async (req: Request, res: Response) => {
 
 const getPostbyId = async (req: Request, res: Response) => {
   try {
-    const id  = req.params.id;
+    const id = req.params.id;
     const result = await postService.getPostbyId(id as string);
 
     res.status(201).json({
@@ -84,8 +84,97 @@ const getPostbyId = async (req: Request, res: Response) => {
   }
 };
 
+const getMyPost = async (req: Request, res: Response) => {
+  try {
+    const user = req.body;
+    if (!user?.id) {
+      throw new Error("User ID not found in request body");
+    }
+    const result = await postService.getMyPost(user.id as string);
+
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Post Fetched failed",
+      error,
+    });
+  }
+};
+const updatePost = async (req: Request, res: Response) => {
+  try {
+    const user = req.body;
+    if (!user?.id) {
+      throw new Error("User ID not found in request body");
+    }
+    const { postId } = req.params;
+    const result = await postService.updatePost(postId as string, req.body, user.id as string);
+
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Post update failed",
+      error,
+    });
+  }
+};
+
+const deletePost = async (req: Request, res: Response) => {
+  try {
+    const user = req.body;
+    if (!user?.id) {
+      throw new Error("User ID not found in request body");
+    }
+    const { postId } = req.params;
+    const result = await postService.deletePost(postId as string, user.id as string);
+
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Post delete failed",
+      error,
+    });
+  }
+};
+
+
+const getStat = async (req: Request, res: Response) => {
+  try {
+    const user = req.body;
+
+    const { postId } = req.params;
+    const result = await postService.getStat();
+
+    res.status(201).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: "Post stat loading failed",
+      error,
+    });
+  }
+};
+
 export const postControler = {
   createPost,
   getAllPost,
   getPostbyId,
+  getMyPost,
+  updatePost,
+  deletePost,
+  getStat
 };
