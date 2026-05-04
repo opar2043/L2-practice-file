@@ -1,6 +1,4 @@
-const fs = require("fs");
-
-const content = `# Prisma Postgres Blog App 🚀
+# Prisma Postgres Blog App 🚀
 
 Backend API built with:
 
@@ -18,67 +16,67 @@ Backend API built with:
 
 ### Install Dependencies
 
-\`\`\`bash
+```bash
 npm install
-\`\`\`
+```
 
 ---
 
 ### Initialize Prisma
 
-\`\`\`bash
+```bash
 npx prisma init
-\`\`\`
+```
 
 ---
 
 ### Run Migration
 
-\`\`\`bash
+```bash
 npx prisma migrate dev --name init
-\`\`\`
+```
 
 ---
 
 ### Generate Prisma Client
 
-\`\`\`bash
+```bash
 npx prisma generate
-\`\`\`
+```
 
 ---
 
 ### Start Dev Server
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 ---
 
 ### Seed Admin
 
-\`\`\`bash
+```bash
 npm run seed:admin
-\`\`\`
+```
 
 ---
 
 ### Prisma Studio
 
-\`\`\`bash
+```bash
 npx prisma studio
-\`\`\`
+```
 
 ---
 
 ## 📁 Folder Structure
 
-\`\`\`
+```
 src/
  prisma/
  .env
-\`\`\`
+```
 
 ---
 
@@ -88,9 +86,3 @@ Rijoan Rashid
 Frontend React Developer & CSE Student
 
 ---
-
-`;
-
-fs.writeFileSync("README.md", content);
-
-console.log("✅ README.md generated successfully!");
